@@ -27,7 +27,7 @@
 		"@typescript-eslint/parser": "^8.24.1",
 		"css-loader": "^7.1.2",
 		"electron": "^34",
-		"electron-builder": "^26.0.7",
+		"electron-builder": "^26.0.11",
 		"eslint": "^8.57.0",
 		"eslint-plugin-deprecation": "^3.0.0",
 		"file-loader": "^6.2.0",
