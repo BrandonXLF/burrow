@@ -280,26 +280,24 @@ export default class Tab {
 		} catch (_) {
 			if (saveType === SaveType.Auto) return false;
 		
-			return new Promise(resolve => {
-				popup(
-					'Failed To Save',
-					'Failed to save tab to ' + this.path,
-					[
-						{
-							text: 'Retry',
-							click: () => resolve(this.save(SaveType.Standard))
-						},
-						{
-							text: 'Save As...',
-							click: () => resolve(this.save(SaveType.SetName))
-						},
-						{
-							text: 'Cancel',
-							click: () => resolve(false)
-						}
-					]
-				)
-			});
+			return new Promise(resolve => popup(
+				'Failed To Save',
+				'Failed to save tab to ' + this.path,
+				[
+					{
+						text: 'Retry',
+						click: () => resolve(this.save(SaveType.Standard))
+					},
+					{
+						text: 'Save As...',
+						click: () => resolve(this.save(SaveType.SetName))
+					},
+					{
+						text: 'Cancel',
+						click: () => resolve(false)
+					}
+				]
+			));
 		}
 
 		this.savedText = value;
@@ -369,37 +367,9 @@ export default class Tab {
 		}
 	}
 	
-	close() {
-		(async () => {
-			if (this.unsaved && this.tabStore.settings.get('autoSave')) {
-				await this.save(SaveType.Auto);
-			}
-
-			if (!this.unsaved) {
-				this.tabStore.removeTab(this);
-				return;
-			}
-			
-			popup(
-				'Unsaved changes!',
-				'Tab has unsaved changes, would you like to save them now?',
-				[
-					{
-						text: 'Save',
-						click: async () => {
-							if (await this.save()) this.tabStore.removeTab(this)
-						}
-					},
-					{
-						text: 'Don\'t Save',
-						click: () => this.tabStore.removeTab(this)
-					},
-					{
-						text: 'Cancel'
-					}
-				]
-			);
-		})();
+	async close() {
+		if (await promptUnsaved(this, this.tabStore.settings))
+			this.tabStore.removeTab(this);
 	}
 	
 	dispose(): void {

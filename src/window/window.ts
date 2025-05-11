@@ -106,11 +106,16 @@ if (openFiles.length) {
 window.htmlClipboard = new HTMLClipboard(editor);
 window.formatEditor = () => format(editor, tabs.currentTab.mode, settings);
 
-window.addEventListener('beforeunload', e => {
-	if (!tabs.tabs.some(tab => tab.unsaved)) return;
+let forceClose = false;
+window.addEventListener('beforeunload', async e => {
+	if (forceClose || !tabs.tabs.some(tab => tab.unsaved)) return;
 
 	e.preventDefault();
-	promptUnsaved(tabs, settings);
+
+	if (await promptUnsaved(tabs, settings)) {
+		forceClose = true;
+		ipcRenderer.send('perform-window-action', 'close');
+	}
 });
 
 document.body.addEventListener('keyup', e => ipcRenderer.send(

@@ -1,45 +1,41 @@
-import { ipcRenderer } from 'electron';
 import { popup } from './popup';
 import SettingStore from '../../utils/SettingStore';
 import Tabs from '../Tabs';
+import Tab from '../Tab';
 
-export default function promptUnsaved(tabs: Tabs, settings: SettingStore) {
-	(async () => {
-		let unsaved = tabs.tabs.filter(tab => tab.unsaved);
-		
-		if (settings.get('autoSave')) {
-			await Promise.allSettled(unsaved.map(tab => tab.save(SaveType.Auto)));
-			unsaved = tabs.tabs.filter(tab => tab.unsaved);
-		}
+export default async function promptUnsaved(tabOrTabs: Tabs | Tab, settings: SettingStore): Promise<boolean> {
+	const tabsToClose = tabOrTabs instanceof Tabs ? tabOrTabs.tabs : [tabOrTabs];
 
-		if (!unsaved.length) return;
+	let unsaved = tabsToClose.filter(tab => tab.unsaved);
+	
+	if (unsaved.length && settings.get('autoSave')) {
+		await Promise.allSettled(unsaved.map(tab => tab.save(SaveType.Auto)));
+		unsaved = tabsToClose.filter(tab => tab.unsaved);
+	}
 
-		popup(
-			'Unsaved changes!',
-			'You have unsaved tabs, would you like to save them now?',
-			[
-				{
-					text: 'Save All',
-					click: async () => {
-						const results = await Promise.all(unsaved.map(tab => tab.save()));
+	if (!unsaved.length) return true;
 
-						if (results.every(result => result)) {
-							unsaved.forEach(tab => tabs.removeTab(tab));
-							ipcRenderer.send('perform-window-action', 'close');
-						}
-					}
-				},
-				{
-					text: 'Don\'t Save',
-					click: () => {
-						unsaved.forEach(tab => tabs.removeTab(tab));
-						ipcRenderer.send('perform-window-action', 'close');
-					}
-				},
-				{
-					text: 'Cancel'
+	return new Promise(resolve => popup(
+		'Unsaved changes!',
+		unsaved.length > 1
+			? 'You have unsaved tabs, would you like to save them now?'
+			: 'Tab has unsaved changes, would you like to save them now?',
+		[
+			{
+				text: unsaved.length > 1 ? 'Save All' : 'Save',
+				click: async () => {
+					const results = await Promise.all(unsaved.map(tab => tab.save()));
+					resolve(results.every(saved => saved));
 				}
-			]
-		);
-	})();
+			},
+			{
+				text: 'Don\'t Save',
+				click: () => resolve(true)
+			},
+			{
+				text: 'Cancel',
+				click: () => resolve(false)
+			}
+		]
+	));
 }
