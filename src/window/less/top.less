@@ -86,8 +86,12 @@ header {
 .top-button {
 	margin-left: 5px;
 	
-	&:hover {
+	&:not([disabled]):hover {
 		background: var(--button-color);
+	}
+
+	&[disabled] {
+		opacity: 0.5;
 	}
 	
 	> svg {
