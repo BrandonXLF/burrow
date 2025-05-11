@@ -11,6 +11,7 @@ import { emittedOnce } from '../utils/emittedOnce';
 import { useSVG } from './useSVG';
 import MiniPopupFactory from './popups/MiniPopupFactory';
 import { getSessionOptions } from './userOptions';
+import promptUnsaved from './popups/promptUnsaved';
 
 export default class Tab {
 	webview = document.createElement('webview');
@@ -314,6 +315,7 @@ export default class Tab {
 	
 	async setPath(path?: string, loadFile = false): Promise<void> {
 		if (!path || path === this.path) return;
+		if (loadFile && !(await promptUnsaved(this, this.tabStore.settings))) return;
 		
 		if (!getFileType(path)) {
 			popup('Failed to set path', `Unsupported file type ${extname(path)}`);
