@@ -327,6 +327,7 @@ export default class Tab {
 		this.mode = getFileType(this.path)!;
 		
 		this.updateTitle();
+		this.tabStore.updateNoPathAttribute();
 
 		this.editorSession.setMode(`ace/mode/${this.mode}`);
 		

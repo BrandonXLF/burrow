@@ -101,10 +101,22 @@ export default class Tabs {
 		document.querySelectorAll('.current').forEach(x => x.classList.remove('current'));
 		
 		this.currentTab = tab;
+		this.updateNoPathAttribute();
 
 		tab.tabElement.classList.add('current');
 		tab.webviewSubContainer.classList.add('current');
 		tab.devtools.classList.add('current');
+		tab.switcher.el.classList.add('current');
+	}
+
+	updateNoPathAttribute() {
+		if (this.currentTab.path) {
+			document.body.removeAttribute(`data-no-path`);
+			(document.getElementById('switch') as HTMLButtonElement).disabled = false;
+		} else {
+			document.body.setAttribute(`data-no-path`, '');
+			(document.getElementById('switch') as HTMLButtonElement).disabled = true;
+		}
 	}
 	
 	selectPrev(): void {
