@@ -39,7 +39,7 @@ const openFilePrefix = '--open-file=',
 	settings = new SettingStore(() => ipcRenderer.send('renderer-settings-updated')),
 	themeMode = new ThemeMode(),
 	editor = ace.edit(
-		document.querySelector<HTMLElement>('#editor-container')!,
+		document.getElementById('editor-container'),
 		getEditorOptions(settings, themeMode)
 	),
 	tabs = new Tabs(
