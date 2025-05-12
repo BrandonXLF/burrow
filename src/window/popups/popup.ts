@@ -45,7 +45,7 @@ export function popup(
 
 	popupElement.append(text);
 
-	buttonCnt.style.textAlign = 'right';
+	buttonCnt.className = 'popup-buttons';
 	popupElement.append(buttonCnt);
 
 	const closePopup = () => container ? container.remove() : popupElement?.remove();

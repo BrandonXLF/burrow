@@ -20,10 +20,11 @@
 	overflow: auto;
 	border: 1px solid var(--border-color);
 
-	button {
-		padding: 0.5em 1em;
-		margin-left: 1em;
-		cursor: pointer;
+	.popup-buttons {
+		button {
+			padding: 0.5em 1em;
+			cursor: pointer;
+		}
 	}
 
 	.row {
@@ -40,6 +41,13 @@
 		> :not(:first-child) {
 			padding-top: 1em;
 		}
+
+		.popup-buttons {
+			display: flex;
+			flex-wrap: wrap;
+			gap: 0.5em 1em;
+			justify-content: end;
+		}
 	}
 
 	&.mini-popup {
@@ -55,14 +63,16 @@
 			display: inline-block;
 		}
 
-		button {
-			border: 0;
-			background: none;
-			margin-left: 4px;
-			padding: 4px;
+		.popup-buttons {
+			button {
+				border: 0;
+				background: none;
+				margin-left: 4px;
+				padding: 4px;
 
-			&:hover {
-				background: var(--button-hover-color);
+				&:hover {
+					background: var(--button-hover-color);
+				}
 			}
 		}
 	}
