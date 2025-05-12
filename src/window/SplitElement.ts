@@ -65,7 +65,7 @@ export default class SplitElement extends EventEmitter {
 		if (this.element.classList.contains('horizontal')) {
 			this.resizeElement.style.left = this.getLength(this.firstChild.offsetWidth, this.element.offsetWidth);
 		} else {
-			this.resizeElement.style.left = this.getLength(this.firstChild.offsetHeight, this.element.offsetHeight);
+			this.resizeElement.style.top = this.getLength(this.firstChild.offsetHeight, this.element.offsetHeight);
 		}
 	}
 	
