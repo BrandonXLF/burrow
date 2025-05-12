@@ -73,19 +73,16 @@ header {
 	display: flex;
 	flex: 1;
 	overflow: hidden;
+	gap: 3px;
 }
 
 #top-icon {
-	margin-left: 5px;
-	margin-right: -2px;
 	height: 20px;
 	aspect-ratio: 1 / 1;
-	padding: 5px;
+	padding: 5px 3px 5px 6px;
 }
 
 .top-button {
-	margin-left: 5px;
-	
 	&:not([disabled]):hover {
 		background: var(--button-color);
 	}
@@ -104,7 +101,6 @@ header {
 	-webkit-app-region: no-drag;
 	display: flex;
 	overflow: hidden;
-	margin-left: 5px;
 }
 
 #os-drag {
@@ -126,8 +122,6 @@ header {
 	}
 
 	&#close {
-		margin-right: 5px;
-	
 		&:hover {
 			background-color: var(--close-color);
 			color: #fff;
