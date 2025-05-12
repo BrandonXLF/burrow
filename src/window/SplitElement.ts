@@ -14,7 +14,8 @@ export default class SplitElement extends EventEmitter {
 		direction: 'horizontal' | 'vertical',
 		visible: boolean,
 		width: string,
-		height: string
+		height: string,
+		private readonly usePixels = false
 	) {
 		super();
 		
@@ -51,20 +52,28 @@ export default class SplitElement extends EventEmitter {
 			}
 		});
 	}
+
+	getLength(offset: number, total: number): string {
+		if (this.usePixels) {
+			return offset + 'px';
+		}
+
+		return offset / total * 100 + '%';
+	}
 	
 	positionResize(): void {
 		if (this.element.classList.contains('horizontal')) {
-			this.resizeElement.style.left = this.firstChild.offsetWidth / this.element.offsetWidth * 100 + '%';
+			this.resizeElement.style.left = this.getLength(this.firstChild.offsetWidth, this.element.offsetWidth);
 		} else {
-			this.resizeElement.style.top = this.firstChild.offsetHeight / this.element.offsetHeight * 100 + '%';
+			this.resizeElement.style.left = this.getLength(this.firstChild.offsetHeight, this.element.offsetHeight);
 		}
 	}
 	
 	mouseMove(event: MouseEvent): void {
 		if (this.element.classList.contains('horizontal')) {
-			this.firstChild.style.width = event.offsetX / this.element.offsetWidth * 100 + '%';
+			this.firstChild.style.width = this.getLength(event.offsetX, this.element.offsetWidth);
 		} else {
-			this.firstChild.style.height = event.offsetY / this.element.offsetHeight * 100 + '%';
+			this.firstChild.style.height = this.getLength(event.offsetY, this.element.offsetHeight);
 		}
 		
 		this.positionResize();

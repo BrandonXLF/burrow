@@ -86,8 +86,12 @@ header {
 .top-button {
 	margin-left: 5px;
 	
-	&:hover {
+	&:not([disabled]):hover {
 		background: var(--button-color);
+	}
+
+	&[disabled] {
+		opacity: 0.5;
 	}
 	
 	> svg {
@@ -150,6 +154,7 @@ body:not(.maximized) {
 }
 
 [data-editor] #edit,
-[data-devtools] #inspect {
+[data-devtools] #inspect,
+[data-switcher]:not([data-no-path]) #switch {
 	background: var(--bg-color);
 }

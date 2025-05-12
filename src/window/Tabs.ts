@@ -19,6 +19,7 @@ export default class Tabs {
 		public tabRow: HTMLElement,
 		public webviewContainer: HTMLElement,
 		public devtoolContainer: HTMLElement,
+		public switcherContainer: HTMLElement,
 		public editor: Ace.Editor,
 		public webContentsIdPromise: Promise<number>,
 		public settings: SettingStore,
@@ -101,10 +102,22 @@ export default class Tabs {
 		document.querySelectorAll('.current').forEach(x => x.classList.remove('current'));
 		
 		this.currentTab = tab;
+		this.updateNoPathAttribute();
 
 		tab.tabElement.classList.add('current');
 		tab.webviewSubContainer.classList.add('current');
 		tab.devtools.classList.add('current');
+		tab.switcher.el.classList.add('current');
+	}
+
+	updateNoPathAttribute() {
+		if (this.currentTab.path) {
+			document.body.removeAttribute(`data-no-path`);
+			(document.getElementById('switch') as HTMLButtonElement).disabled = false;
+		} else {
+			document.body.setAttribute(`data-no-path`, '');
+			(document.getElementById('switch') as HTMLButtonElement).disabled = true;
+		}
 	}
 	
 	selectPrev(): void {
@@ -125,6 +138,10 @@ export default class Tabs {
 	
 	addToDevtoolsArea(...elements: HTMLElement[]): void {
 		this.devtoolContainer.append(...elements);
+	}
+
+	addToSwitcherArea(...elements: HTMLElement[]): void {
+		this.switcherContainer.append(...elements);
 	}
 	
 	async getNewTabId(): Promise<string> {

@@ -2,6 +2,7 @@
 @import 'top.less';
 @import 'scrollbar.less';
 @import 'aceSearch.less';
+@import 'switcher.less';
 
 html,
 body {
@@ -32,7 +33,7 @@ a {
 	color: var(--link-color);
 }
 
-button:hover {
+button:not([disabled]):hover {
 	background: var(--button-hover-color);
 }
 
@@ -45,12 +46,17 @@ button:hover {
 	position: relative;
 }
 
-#main-container {
+#switcher-container {
 	position: absolute;
 	top: 0;
 	bottom: 0;
 	left: 0;
 	right: 0;
+}
+
+[data-no-path] #switcher,
+[data-no-path] #switcher-separator {
+	display: none;
 }
 
 #webview-container {
