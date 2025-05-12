@@ -25,6 +25,10 @@ export function popup(
 		container.className = 'popup-container';
 		container.style.cssText = '';
 
+		if (parent !== document.body) {
+			container.classList.add('partial');
+		}
+
 		container.append(popupElement);
 		parent.append(container);
 	}
