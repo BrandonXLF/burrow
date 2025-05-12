@@ -2,6 +2,7 @@ import * as fs from 'fs/promises';
 import { join, dirname } from 'path';
 import { getFileType } from '../utils/fileTypes';
 import Tab from './Tab';
+import './less/switcher.less';
 
 export default class FileSwitcher {
 	el = document.createElement('div');

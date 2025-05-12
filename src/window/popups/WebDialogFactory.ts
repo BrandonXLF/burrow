@@ -1,6 +1,7 @@
 import { ipcRenderer } from 'electron';
 import Tabs from '../Tabs';
 import { popup } from './popup';
+import '../less/webDialog.less'
 
 export default class WebDialogFactory {
 	constructor(private tabs: Tabs) { }

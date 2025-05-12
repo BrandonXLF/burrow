@@ -1,5 +1,5 @@
 import { EventEmitter } from 'events';
-import './split.less';
+import './less/split.less';
 
 export default class SplitElement extends EventEmitter {
 	identifier: string;
