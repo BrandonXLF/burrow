@@ -135,7 +135,9 @@ export default class MiniPopupFactory {
 			this.tab.webviewSubContainer,
 			true
 		);
-		
+
+		input.focus();
+
 		this.currentPopup = {
 			type: 'find',
 			dispose: () => {
