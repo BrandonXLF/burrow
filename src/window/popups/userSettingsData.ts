@@ -25,6 +25,11 @@ export const userSettingsData = [
 				label: 'Show devtools on launch'
 			},
 			{
+				type: 'checkbox',
+				name: 'autoSwitcher',
+				label: 'Show file switcher by default'
+			},
+			{
 				type: 'select',
 				name: 'defaultType',
 				label: 'Default file type',

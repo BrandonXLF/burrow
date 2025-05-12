@@ -49,6 +49,13 @@
 						<line x1="4" y1="18" x2="20" y2="18" />
 					</svg>
 				</button>
+				<button id="switch" class="top-button">
+					<svg viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" stroke="currentColor" fill="none">
+						<title>Toggle File Switcher</title>
+						<path stroke="none" d="M0 0h24v24H0z" fill="none" />
+						<path d="M5 4h4l3 3h7a2 2 0 0 1 2 2v8a2 2 0 0 1 -2 2h-14a2 2 0 0 1 -2 -2v-11a2 2 0 0 1 2 -2" />
+					</svg>
+				</button>
 				<button id="edit" class="top-button">
 					<svg viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" stroke="currentColor" fill="none">
 						<title>Toggle Editor (Ctrl+E)</title>
@@ -111,13 +118,17 @@
 			</button>
 		</header>
 		<main id="main">
-			<div id="main-container" class="split">
-				<div id="editor-container" class="hide"></div>
-				<div id="main-separator" class="resize"></div>
-				<div id="viewer-container" class="split">
-					<div id="webview-container"></div>
-					<div id="viewer-separator" class="resize"></div>
-					<div id="devtool-container" class="hide"></div>
+			<div id="switcher-container" class="split">
+				<div id="switcher" class="hide"></div>
+				<div id="switcher-separator" class="resize"></div>
+				<div id="main-container" class="split">
+					<div id="editor-container" class="hide"></div>
+					<div id="main-separator" class="resize"></div>
+					<div id="viewer-container" class="split">
+						<div id="webview-container"></div>
+						<div id="viewer-separator" class="resize"></div>
+						<div id="devtool-container" class="hide"></div>
+					</div>
 				</div>
 			</div>
 		</main>

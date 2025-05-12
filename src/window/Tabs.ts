@@ -19,6 +19,7 @@ export default class Tabs {
 		public tabRow: HTMLElement,
 		public webviewContainer: HTMLElement,
 		public devtoolContainer: HTMLElement,
+		public switcherContainer: HTMLElement,
 		public editor: Ace.Editor,
 		public webContentsIdPromise: Promise<number>,
 		public settings: SettingStore,
@@ -137,6 +138,10 @@ export default class Tabs {
 	
 	addToDevtoolsArea(...elements: HTMLElement[]): void {
 		this.devtoolContainer.append(...elements);
+	}
+
+	addToSwitcherArea(...elements: HTMLElement[]): void {
+		this.switcherContainer.append(...elements);
 	}
 	
 	async getNewTabId(): Promise<string> {

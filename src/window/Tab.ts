@@ -1,5 +1,5 @@
 import * as fs from 'fs/promises';
-import { join, extname, basename } from 'path';
+import { join, extname, basename, dirname } from 'path';
 import { ipcRenderer, webUtils } from 'electron';
 import Tabs from './Tabs';
 import { getDefaultExtension, getFileType } from '../utils/fileTypes';
@@ -12,10 +12,12 @@ import { useSVG } from './useSVG';
 import MiniPopupFactory from './popups/MiniPopupFactory';
 import { getSessionOptions } from './userOptions';
 import promptUnsaved from './popups/promptUnsaved';
+import FileSwitcher from './FileSwitcher';
 
 export default class Tab {
 	webview = document.createElement('webview');
 	devtools = document.createElement('webview');
+	switcher = new FileSwitcher(this);
 	webviewSubContainer = document.createElement('div');
 	partition = crypto.randomUUID();
 	faviconElement = document.createElement('img');
@@ -32,7 +34,7 @@ export default class Tab {
 	tabStore: Tabs;
 	mode: string;
 	path: string;
-	watchController: AbortController;
+	watchController?: AbortController;
 	tabId: string;
 	dragStart?: [number, number];
 	savedText: string;
@@ -78,6 +80,8 @@ export default class Tab {
 		this.devtools.src = 'about:blank';
 		this.devtools.classList.add('show-when-current');
 		tabStore.addToDevtoolsArea(this.devtools);
+
+		tabStore.addToSwitcherArea(this.switcher.el);
 		
 		this.faviconElement.classList.add('tab-favicon');
 		
@@ -313,20 +317,21 @@ export default class Tab {
 		this.setPath(newPath);
 	}
 	
-	async setPath(path?: string, loadFile = false): Promise<void> {
+	async setPath(path?: string, loadFile = false, keepFolder = false): Promise<void> {
 		if (!path || path === this.path) return;
 		if (loadFile && !(await promptUnsaved(this, this.tabStore.settings))) return;
 		
 		if (!getFileType(path)) {
 			popup('Failed to set path', `Unsupported file type ${extname(path)}`);
-			
-			if (loadFile) this.tabStore.removeTab(this);
-
 			return;
 		}
 		
 		this.path = path;
 		this.mode = getFileType(this.path)!;
+
+		if (!keepFolder) {
+			this.switcher.folder = dirname(this.path);
+		}
 		
 		this.updateTitle();
 		this.tabStore.updateNoPathAttribute();
@@ -377,6 +382,7 @@ export default class Tab {
 	
 	dispose(): void {
 		this.watchController?.abort();
+		this.switcher.dispose();
 		this.tabElement.remove();
 		this.webviewSubContainer.remove();
 		this.devtools.remove();

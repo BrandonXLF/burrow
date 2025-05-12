@@ -9,6 +9,7 @@ export default class SettingStore {
 		viewerUseTheme: true,
 		autoEdit: false,
 		autoDevtools: false,
+		autoSwitcher: false,
 		softTabs: false,
 		tabSize: 4,
 		showInvisible: false,
@@ -24,7 +25,8 @@ export default class SettingStore {
 		editorWidth: '50%',
 		editorHeight: '50%',
 		viewerWidth: '50%',
-		viewerHeight: '50%'
+		viewerHeight: '50%',
+		switcherWidth: '175px'
 	};
 	
 	constructor(

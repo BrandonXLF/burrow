@@ -46,6 +46,7 @@ const openFilePrefix = '--open-file=',
 		document.getElementById('tabs')!,
 		document.getElementById('webview-container')!,
 		document.getElementById('devtool-container')!,
+		document.getElementById('switcher')!,
 		editor,
 		webContentsIdPromise,
 		settings,
@@ -67,6 +68,15 @@ const openFilePrefix = '--open-file=',
 		settings.get('viewerWidth'),
 		settings.get('viewerHeight')
 	),
+	switcherSplit = new SplitElement(
+		'switcher',
+		document.getElementById('switcher-container')!,
+		'horizontal',
+		settings.get('autoSwitcher'),
+		settings.get('switcherWidth'),
+		'100%',
+		true
+	),
 	updateUI = new UpdateUI();
 
 mainSplit.on('width', x => settings.set('editorWidth', x));
@@ -76,6 +86,9 @@ mainSplit.on('visible', () => editor.resize());
 viewerSplit.on('width', x => settings.set('viewerWidth', x));
 viewerSplit.on('height', x => settings.set('viewerHeight', x));
 
+switcherSplit.on('width', x => settings.set('switcherWidth', x));
+
+document.getElementById('switch')!.addEventListener('click', () => switcherSplit.toggleVisible());
 document.getElementById('edit')!.addEventListener('click', () => mainSplit.toggleVisible());
 document.getElementById('inspect')!.addEventListener('click', () => viewerSplit.toggleVisible());
 document.getElementById('run')!.addEventListener('click', () => tabs.currentTab.preview());
