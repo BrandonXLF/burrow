@@ -44,7 +44,7 @@ export default class WebDialogFactory {
 	showPrompt(uuid: string, message: unknown = '', initial: unknown = '') {
 		const input = document.createElement('input');
 		input.value = String(initial);
-		input.style.cssText = 'display: block; margin-top: 1em';
+		input.className = 'prompt-input';
 
 		popup(
 			'Prompt',
