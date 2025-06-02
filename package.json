@@ -1,7 +1,7 @@
 {
 	"name": "burrow",
 	"description": "HTML, markdown, and SVG viewer and code editor with development tools.",
-	"version": "1.8.3",
+	"version": "1.9.0",
 	"homepage": "https://www.brandonfowler.me/burrow/",
 	"author": {
 		"name": "Brandon Fowler",
