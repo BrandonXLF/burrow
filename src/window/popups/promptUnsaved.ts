@@ -15,27 +15,34 @@ export default async function promptUnsaved(tabOrTabs: Tabs | Tab, settings: Set
 
 	if (!unsaved.length) return true;
 
-	return new Promise(resolve => popup(
-		'Unsaved changes!',
-		unsaved.length > 1
-			? 'You have unsaved tabs, would you like to save them now?'
-			: 'Tab has unsaved changes, would you like to save them now?',
-		[
-			{
-				text: unsaved.length > 1 ? 'Save All' : 'Save',
-				click: async () => {
-					const results = await Promise.all(unsaved.map(tab => tab.save()));
-					resolve(results.every(saved => saved));
+	return new Promise(resolve => {
+		const save = async () => {
+			const results = await Promise.all(unsaved.map(tab => tab.save()));
+			resolve(results.every(saved => saved));
+		};
+
+		popup(
+			'Unsaved changes!',
+			unsaved.length > 1
+				? 'You have unsaved tabs, would you like to save them now?'
+				: 'Tab has unsaved changes, would you like to save them now?',
+			[
+				{
+					text: unsaved.length > 1 ? 'Save All' : 'Save',
+					click: save
+				},
+				{
+					text: 'Don\'t Save',
+					click: () => resolve(true)
+				},
+				{
+					text: 'Cancel'
 				}
-			},
-			{
-				text: 'Don\'t Save',
-				click: () => resolve(true)
-			},
-			{
-				text: 'Cancel',
-				click: () => resolve(false)
-			}
-		]
-	));
+			],
+			undefined,
+			false,
+			() => resolve(false),
+			save
+		);
+	});
 }

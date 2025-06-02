@@ -14,10 +14,14 @@ export default function updateStatusPopup(init: boolean, status?: UpdateStatus):
         details.textContent = status.details;
     };
 
-    popup(title, details, [{
-        text: init ? 'Close' : 'OK',
-        click: () => ipcRenderer.off('update-status', updateStateListener)
-    }]);
+    popup(
+        title,
+        details,
+        [{ text: init ? 'Close' : 'OK' }],
+        undefined,
+        false,
+        () => ipcRenderer.off('update-status', updateStateListener)
+    );
 
     ipcRenderer.on('update-status', updateStateListener);
 }

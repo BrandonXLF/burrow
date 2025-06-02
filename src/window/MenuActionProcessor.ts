@@ -81,6 +81,10 @@ export default class MenuActionProcessor {
 				break;
 			case 'forward':
 				this.tabs.currentTab.webview.goForward();
+				break;
+			case 'close-mini':
+				this.tabs.currentTab.miniPopupFactory?.currentPopup?.dispose();
+				break;
 		}
 	}
 }

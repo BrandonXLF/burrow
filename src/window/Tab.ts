@@ -285,24 +285,31 @@ export default class Tab {
 		} catch (_) {
 			if (saveType === SaveType.Auto) return false;
 		
-			return new Promise(resolve => popup(
-				'Failed To Save',
-				'Failed to save tab to ' + this.path,
-				[
-					{
-						text: 'Retry',
-						click: () => resolve(this.save(SaveType.Standard))
-					},
-					{
-						text: 'Save As...',
-						click: () => resolve(this.save(SaveType.SetName))
-					},
-					{
-						text: 'Cancel',
-						click: () => resolve(false)
-					}
-				]
-			));
+			return new Promise(resolve => {
+				const retry = () => resolve(this.save(SaveType.Standard));
+
+				popup(
+					'Failed To Save',
+					'Failed to save tab to ' + this.path,
+					[
+						{
+							text: 'Retry',
+							click: retry
+						},
+						{
+							text: 'Save As...',
+							click: () => resolve(this.save(SaveType.SetName))
+						},
+						{
+							text: 'Cancel'
+						}
+					],
+					undefined,
+					false,
+					() => resolve(false),
+					retry
+				);
+			});
 		}
 
 		this.savedText = value;

@@ -59,21 +59,24 @@ export default class MiniPopupFactory {
 					keepOpen: true
 				},
 				{
-					text: useSVG('x'),
-					click: () => this.currentPopup!.dispose()
+					text: useSVG('x')
 				},
 			],
 			this.tab.webviewSubContainer,
-			true
+			true,
+			() => {
+				this.tab.webview.focus();
+				this.currentPopup = undefined;
+			},
+			false
 		);
 		
 		this.currentPopup = {
 			type: 'zoom',
-			dispose: () => {
-				closePopup();
-				this.currentPopup = undefined;
-			}
+			dispose: closePopup
 		};
+
+		return closePopup;
 	}
 
 	showFindPopup() {
@@ -103,6 +106,15 @@ export default class MiniPopupFactory {
 			});
 		});
 
+		input.addEventListener('keydown', e => {
+			if (e.key === 'Enter' || e.key === 'NumpadEnter') {
+				this.tab.webview.findInPage(input.value, {
+					forward: !e.shiftKey,
+					findNext: false
+				});
+			}
+		});
+
 		const closePopup = popup(
 			'',
 			[input, current, sep, total],
@@ -128,24 +140,27 @@ export default class MiniPopupFactory {
 					keepOpen: true
 				},
 				{
-					text: useSVG('x'),
-					click: () => this.currentPopup!.dispose()
+					text: useSVG('x')
 				},
 			],
 			this.tab.webviewSubContainer,
-			true
+			true,
+			() => {
+				this.tab.webview.stopFindInPage('clearSelection');
+				this.tab.webview.removeEventListener('found-in-page', onFoundInPage);
+				this.tab.webview.focus();
+				this.currentPopup = undefined;
+			},
+			false
 		);
 
 		input.focus();
 
 		this.currentPopup = {
 			type: 'find',
-			dispose: () => {
-				closePopup();
-				this.tab.webview.stopFindInPage('clearSelection');
-				this.tab.webview.removeEventListener('found-in-page', onFoundInPage);
-				this.currentPopup = undefined;
-			}
+			dispose: closePopup
 		};
+
+		return closePopup;
 	}
 }

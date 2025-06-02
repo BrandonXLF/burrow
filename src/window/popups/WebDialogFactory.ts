@@ -1,6 +1,6 @@
 import { ipcRenderer } from 'electron';
 import Tabs from '../Tabs';
-import { popup } from './popup';
+import { popup, PopupButton } from './popup';
 import '../less/webDialog.less'
 
 export default class WebDialogFactory {
@@ -10,35 +10,57 @@ export default class WebDialogFactory {
 		ipcRenderer.send('web-dialog-response', uuid, data);
 	}
 
+	showDialog(
+		uuid: string,
+		title: string,
+		msg: string | Node | (string | Node)[],
+		showCancel: boolean,
+		submitResponse: unknown | (() => unknown),
+		cancelResponse: unknown | (() => unknown)
+	) {
+		const sendResponse = (response: unknown | (() => unknown)) => this.sendResponse(uuid, (response instanceof Function) ? response() : response);
+
+		const buttons: PopupButton[] = [
+			{
+				text: 'OK',
+				click: () => sendResponse(submitResponse),
+			}
+		];
+
+		if (showCancel) {
+			buttons.push({ text: 'Cancel' });
+		}
+
+		return popup(
+			title,
+			msg,
+			buttons,
+			this.tabs.currentTab.webviewSubContainer,
+			false,
+			() => sendResponse(cancelResponse),
+			() => sendResponse(submitResponse)
+		);
+	}
+
 	showAlert(uuid: string, message: unknown = '') {
-		popup(
+		this.showDialog(
+			uuid,
 			'Alert',
 			String(message),
-			[
-				{
-					text: 'OK',
-					click: () => this.sendResponse(uuid, undefined)
-				}
-			],
-			this.tabs.currentTab.webviewSubContainer
+			false,
+			undefined,
+			undefined
 		);
 	}
 
 	showConfirm(uuid: string, message: unknown = '') {
-		popup(
+		this.showDialog(
+			uuid,
 			'Confirm',
 			String(message),
-			[
-				{
-					text: 'OK',
-					click: () => this.sendResponse(uuid, true)
-				},
-				{
-					text: 'Cancel',
-					click: () => this.sendResponse(uuid, false)
-				}
-			],
-			this.tabs.currentTab.webviewSubContainer
+			true,
+			true,
+			false
 		);
 	}
 
@@ -47,20 +69,13 @@ export default class WebDialogFactory {
 		input.value = String(initial);
 		input.className = 'prompt-input';
 
-		popup(
+		this.showDialog(
+			uuid,
 			'Prompt',
 			[String(message), input],
-			[
-				{
-					text: 'OK',
-					click: () => this.sendResponse(uuid, input.value)
-				},
-				{
-					text: 'Cancel',
-					click: () => this.sendResponse(uuid, null)
-				}
-			],
-			this.tabs.currentTab.webviewSubContainer
+			true,
+			() => input.value,
+			null
 		);
 	}
 

@@ -1,17 +1,25 @@
 import '../less/popup.less';
 
+export interface PopupButton {
+	text: string | Node;
+	click?: () => unknown;
+	keepOpen?: boolean;
+}
+
 export function popup(
 	title: string | Node,
 	msg: string | Node|(string | Node)[],
-	buttons: {text: string | Node, click?: () => unknown, keepOpen?: boolean}[] = [{text: 'OK'}],
+	buttons: PopupButton[] = [{text: 'OK'}],
 	parent = document.body,
-	small = false
+	small = false,
+	onClose?: () => unknown,
+	onSubmit?: (() => unknown) | false
 ) {
 	const popupElement = document.createElement('div'),
 		text = document.createElement('div'),
 		buttonCnt = document.createElement('div');
 	
-	let	container: HTMLDivElement;
+	let	container: HTMLDivElement | undefined;
 
 	popupElement.classList.add('popup');
 
@@ -33,6 +41,8 @@ export function popup(
 		parent.append(container);
 	}
 
+	const topElement = container ?? popupElement;
+
 	if (title) {
 		const titleElement = document.createElement('h3');
 
@@ -52,19 +62,36 @@ export function popup(
 	buttonCnt.className = 'popup-buttons';
 	popupElement.append(buttonCnt);
 
-	const closePopup = () => container ? container.remove() : popupElement?.remove();
+	const closePopup = () => {
+		topElement.remove();
+		onClose?.();
+	};
 
 	buttons.forEach(button => {
 		const buttonElement = document.createElement('button');
 
 		buttonElement.append(button.text);
 		buttonElement.addEventListener('click', () => {
-			if (!button.keepOpen) closePopup();
-
 			button.click?.();
+			if (!button.keepOpen) closePopup();
 		});
 		buttonCnt.append(buttonElement);
 	});
+
+	topElement.addEventListener('keydown', e => {
+		if (e.key === 'Escape') {
+			closePopup();
+			return;
+		}
+
+		if (onSubmit !== false && (e.key === 'Enter' || e.key === 'NumpadEnter')) {
+			onSubmit?.();
+			closePopup();
+		}
+	});
+
+	topElement.tabIndex = -1;
+	topElement.focus();
 
 	return closePopup;
 }
