@@ -39,8 +39,7 @@ updater.check();
 
 app.on('web-contents-created', (_, contents) => {
 	if (contents.getType() !== 'webview') return;
-	
-	contents.on('context-menu', (_, params) => showContextMenu(params, contents.hostWebContents, contents));
+	contents.on('context-menu', (_, params) => contents.hostWebContents && showContextMenu(params, contents.hostWebContents, contents));
 });
 
 ipcMain.on('renderer-settings-updated', () => {
