@@ -16,13 +16,11 @@ import FileSwitcher from './FileSwitcher';
 
 export default class Tab {
 	webview = document.createElement('webview');
-	devtools = document.createElement('webview');
 	switcher = new FileSwitcher(this);
 	webviewSubContainer = document.createElement('div');
 	partition = crypto.randomUUID();
 	faviconElement = document.createElement('img');
 	webviewReady = emittedOnce(this.webview, 'dom-ready');
-	devtoolsReady = emittedOnce(this.devtools, 'dom-ready');
 	tabElement = document.createElement('div');
 	titleElement = document.createElement('span');
 	closeButton = document.createElement('button');
@@ -76,10 +74,6 @@ export default class Tab {
 		this.webviewSubContainer.append(this.webview);
 		this.webviewSubContainer.classList.add('webview-sub-container', 'show-when-current');
 		tabStore.addToMainArea(this.webviewSubContainer);
-		
-		this.devtools.src = 'about:blank';
-		this.devtools.classList.add('show-when-current');
-		tabStore.addToDevtoolsArea(this.devtools);
 
 		tabStore.addToSwitcherArea(this.switcher.el);
 		
@@ -257,13 +251,27 @@ export default class Tab {
 	
 	async linkDevtools() {
 		await this.webviewReady;
-		await this.devtoolsReady;
+		await ipcRenderer.invoke('create-devtools-view', this.tabId);
 
 		ipcRenderer.send(
-			'set-devtool-webview',
+			'attach-devtools-view',
 			this.webview.getWebContentsId(),
-			this.devtools.getWebContentsId()
+			this.tabId
 		);
+
+		this.syncDevtoolsBounds();
+	}
+
+	syncDevtoolsBounds() {
+		const devtoolsElement = this.tabStore.devtoolContainer;
+		const rect = devtoolsElement.getBoundingClientRect();
+
+		ipcRenderer.send('set-devtools-view-bounds', this.tabId, {
+			x: rect.left,
+			y: rect.top,
+			width: rect.width,
+			height: rect.height
+		});
 	}
 	
 	async save(saveType = SaveType.Standard): Promise<boolean> {
@@ -392,7 +400,7 @@ export default class Tab {
 		this.switcher.dispose();
 		this.tabElement.remove();
 		this.webviewSubContainer.remove();
-		this.devtools.remove();
+		ipcRenderer.send('dispose-devtools-view', this.tabId);
 		this.tabStore.themeMode.removeListener('change', this.onThemeChange);
 		this.removeCSSUpdateListener?.();
 		ipcRenderer.send('delete-session', this.partition);

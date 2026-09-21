@@ -67,7 +67,7 @@ export default class Tabs {
 	}
 	
 	moveTab(tab: Tab, newIndex?: number): void {
-		if (newIndex === undefined) newIndex = this.tabs.length;
+		newIndex ??= this.tabs.length;
 		
 		const index = this.getTabIndex(tab);
 		
@@ -106,8 +106,17 @@ export default class Tabs {
 
 		tab.tabElement.classList.add('current');
 		tab.webviewSubContainer.classList.add('current');
-		tab.devtools.classList.add('current');
 		tab.switcher.el.classList.add('current');
+
+		this.tabs.forEach(currentTab => {
+			ipcRenderer.send(
+				'set-devtools-view-visible',
+				currentTab.tabId,
+				currentTab === tab && document.body.hasAttribute('data-devtools')
+			);
+		});
+
+		tab.syncDevtoolsBounds();
 	}
 
 	updateNoPathAttribute() {
@@ -134,10 +143,6 @@ export default class Tabs {
 	
 	addToMainArea(...elements: HTMLElement[]): void {
 		this.webviewContainer.append(...elements);
-	}
-	
-	addToDevtoolsArea(...elements: HTMLElement[]): void {
-		this.devtoolContainer.append(...elements);
 	}
 
 	addToSwitcherArea(...elements: HTMLElement[]): void {

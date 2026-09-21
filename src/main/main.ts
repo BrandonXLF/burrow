@@ -1,4 +1,4 @@
-import { app, BrowserWindow, ipcMain, webContents, dialog, nativeTheme, Menu } from 'electron';
+import { app, BrowserWindow, ipcMain, webContents, dialog, nativeTheme, Menu, WebContentsView } from 'electron';
 import { getOpenFilters, getSaveFilters } from '../utils/fileTypes';
 import { showContextMenu } from './contextMenu';
 import { join } from 'path';
@@ -18,6 +18,8 @@ const initialFiles = process.argv.slice(app.isPackaged ? 1 : 2),
 	gotLock = app.requestSingleInstanceLock(initialFiles);
 
 if (!gotLock) app.quit();
+
+const devtoolsViews = new Map<string, Electron.WebContentsView>();
 
 function emitSettingsUpdate() {
 	BrowserWindow.getAllWindows().forEach(win => win.webContents.send('settings-updated'));
@@ -83,14 +85,57 @@ ipcMain.on('web-dialog', (e, type, message, initial) => {
 	ipcMain.on('web-dialog-response', onResponse);
 });
 
-ipcMain.on('set-devtool-webview', (_, targetContentsId: number, devtoolsContentsId: number) => {
+ipcMain.handle('create-devtools-view', (e, tabId: string) => {
+	const browserWindow = BrowserWindow.fromWebContents(e.sender)!;
+	const view = new WebContentsView({
+		webPreferences: {
+			nodeIntegration: true,
+			contextIsolation: false
+		}
+	});
+
+	devtoolsViews.set(tabId, view);
+	browserWindow.contentView.addChildView(view);
+	view.setVisible(false);
+	view.setBounds({ x: 0, y: 0, width: 0, height: 0 });
+
+	return view.webContents.id;
+});
+
+ipcMain.on('set-devtools-view-bounds', (_, tabId: string, bounds: Electron.Rectangle) => {
+	const view = devtoolsViews.get(tabId);
+	view?.setBounds({
+		x: Math.round(bounds.x),
+		y: Math.round(bounds.y),
+		width: Math.max(0, Math.round(bounds.width)),
+		height: Math.max(0, Math.round(bounds.height))
+	});
+});
+
+ipcMain.on('set-devtools-view-visible', (_, tabId: string, visible: boolean) => {
+	const view = devtoolsViews.get(tabId);
+	view?.setVisible(visible);
+});
+
+ipcMain.on('attach-devtools-view', (_, targetContentsId: number, tabId: string) => {
 	const target = webContents.fromId(targetContentsId)!,
-		devtools = webContents.fromId(devtoolsContentsId)!;
+		view = devtoolsViews.get(tabId);
 
-	target.setDevToolsWebContents(devtools);
-	target.openDevTools();
+	if (!view) return;
 
-	devtools.executeJavaScript('window.location.reload();');
+	target.setDevToolsWebContents(view.webContents);
+	target.openDevTools({ mode: 'detach' });
+});
+
+ipcMain.on('dispose-devtools-view', (e, tabId: string) => {
+	const browserWindow = BrowserWindow.fromWebContents(e.sender)!;
+	const view = devtoolsViews.get(tabId);
+
+	if (!view) return;
+
+	browserWindow.contentView.removeChildView(view);
+	view.webContents.close();
+	devtoolsViews.delete(tabId);
 });
 
 ipcMain.on('perform-window-action', (e, action) => {

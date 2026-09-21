@@ -86,6 +86,14 @@ mainSplit.on('visible', () => editor.resize());
 viewerSplit.on('width', x => settings.set('viewerWidth', x));
 viewerSplit.on('height', x => settings.set('viewerHeight', x));
 
+new ResizeObserver(() => {
+	const currentTab = tabs.currentTab;
+	if (!currentTab) return;
+
+	currentTab.syncDevtoolsBounds();
+	ipcRenderer.send('set-devtools-view-visible', currentTab.tabId, document.body.hasAttribute('data-devtools'));
+}).observe(document.getElementById('devtool-container')!);
+
 switcherSplit.on('width', x => settings.set('switcherWidth', x));
 
 document.getElementById('switch')!.addEventListener('click', () => switcherSplit.toggleVisible());
