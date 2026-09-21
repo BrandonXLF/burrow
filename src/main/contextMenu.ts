@@ -1,6 +1,6 @@
-import { clipboard, ContextMenuParams, Menu, MenuItemConstructorOptions, session, WebContents } from 'electron';
+import { clipboard, ClipboardItem, ContextMenuParams, Menu, MenuItemConstructorOptions, session, WebContents } from 'electron';
 
-export function showContextMenu(params: ContextMenuParams, main: WebContents, webview?: WebContents) {
+export async function showContextMenu(params: ContextMenuParams, main: WebContents, webview?: WebContents) {
 	const template: MenuItemConstructorOptions[] = [],
 		focused = webview ?? main,
 		hasSelection = params.selectionText.length > 0;
@@ -101,7 +101,7 @@ export function showContextMenu(params: ContextMenuParams, main: WebContents, we
 		template.push({
 			label: webview ? 'Paste' : 'Paste text',
 			accelerator: 'CmdOrCtrl+V',
-			enabled: clipboard.availableFormats().includes('text/plain'),
+			enabled: await clipboard.has('text/plain'),
 			click: () => focused.paste()
 		});
 	}
@@ -132,7 +132,7 @@ export function showContextMenu(params: ContextMenuParams, main: WebContents, we
 			template.push(
 				{
 					label: 'Paste HTML',
-					enabled: clipboard.availableFormats().includes('text/html'),
+					enabled: await clipboard.has('text/html'),
 					click: () => void focused.executeJavaScript(`htmlClipboard.paste()`)
 				},
 				{
@@ -173,7 +173,7 @@ export function showContextMenu(params: ContextMenuParams, main: WebContents, we
 				{
 					label: 'Copy Link Address',
 					visible: params.linkURL.length > 0,
-					click: () => clipboard.write({ text: params.linkURL })
+					click: () => clipboard.write([new ClipboardItem({ 'text/plain': params.linkURL })])
 				},
 				{
 					type: 'separator',
@@ -194,7 +194,7 @@ export function showContextMenu(params: ContextMenuParams, main: WebContents, we
 				},
 				{
 					label: `Copy ${mediaType} Address`,
-					click: () => clipboard.write({ text: params.srcURL })
+					click: () => clipboard.write([new ClipboardItem({ 'text/plain': params.srcURL })])
 				},
 				{
 					type: 'separator'
